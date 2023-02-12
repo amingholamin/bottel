@@ -1,50 +1,73 @@
-const{blackListModel} = require('./models/blackList');
-const{groupModel} = require('./models/group');
-const{userModel} = require('./models/user');
+const { blackListModel } = require("./models/blackList");
+const { groupModel } = require("./models/group");
+const { userModel } = require("./models/user");
 
-
+const fun = require("./publickFunctions");
 
 class ButtonBot {
+  
+  static async RepleyMarkupGroupAdmin(bot, ctx) {
+    const userGroup = await groupModel.getGroupUser({ userId: ctx.from.id });
 
-   
-static async  RepleyMarkupGroupAdmin(bot,ctx) {
-    const userGroup = await groupModel.getGroupUser({userId:ctx.from.id})
-
-    const options = userGroup.map((x) => [{ text: x.title, callback_data: x.id }]);
-    console.log("777777777777");
-    console.log(userGroup);
+    const options = userGroup.map((x) => [
+      { text: x.title, callback_data: x.id },
+    ]);
     userGroup.forEach((element) => {
       bot.action(`${element.id}`, async (ctx) => {
-      console.log("888888888888888888888");
-        ctx.answerCbQuery('گروه شما انتخاب شد');
+        await fun.DeleteButtonMurkUp(ctx.from.id, ctx);
+        ctx.answerCbQuery("گروه شما انتخاب شد");
+        await userModel.changeUser(
+          { userId: ctx.from.id },
+          { groupState: element.groupId }
+        );
 
-        let blackList = await blackListModel.getWords({groupId:element.groupId});
+        let blackList = await blackListModel.getWords({
+          groupId: element.groupId,
+        });
         let b = [];
-        console.log("555555555555");
-        for(var i=0;i<blackList.length;++i){
-            let r =[]
-            let bg ={};
-            bg.text=blackList[i].word
-            bg.callback_data=blackList[i].id
-            r.push(bg)
-            b.push(r)
-        }
-        console.log(b);
-  
-        ctx.reply("کلمات شما به شرح زیر است اگر بر روی هر کدام کلیک کنید به منظور خذف خواهد بود و با تگ زیر میتوانید کلمه جدید را اضافه کنید /addBlackWord", {
-            reply_markup: JSON.stringify({
-              inline_keyboard:b
-            }),
+        for (var i = 0; i < blackList.length; ++i) {
+          let r = [];
+          let bg = {};
+          bg.text = blackList[i].word;
+          bg.callback_data =`${blackList[i].text}-${blackList[i].id}`;
+          r.push(bg);
+          b.push(r);
+          let bo = blackList[i].id;
+          bot.action(`${blackList[i].text}-${blackList[i].id}`, async (ctx) => {
+            console.log(ctx.from.id);
+            await fun.DeleteButtonMurkUp(ctx.from.id, ctx);
+
+            await blackListModel.delete({ id: bo });
+            await userModel.defaultUser({userId:ctx.from.id})
+
+            await ctx.reply(`با موفقیت خذف شد`,{
+              
+              reply_markup: JSON.stringify({
+                inline_keyboard:options
+              }),
+            });
           });
-  
-      //  messageid = MessageIdForDelete.message_id;
+        }
+
+        let a =await  ctx.reply(
+          "کلمات شما به شرح زیر است اگر بر روی هر کدام کلیک کنید به منظور خذف خواهد بود و با تگ زیر میتوانید کلمه جدید را اضافه کنید /addBlackWord",
+          {
+            reply_markup: JSON.stringify({
+              inline_keyboard: b,
+            }),
+          }
+        );
+        
+        await userModel.changeUser({userId:ctx.from.id},{messageID:a.message_id})
+
+
+        return a;
+
+        //  messageid = MessageIdForDelete.message_id;
       });
     });
     return options;
   }
-      
-
-    
 }
 
 module.exports = {

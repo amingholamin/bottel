@@ -33,8 +33,10 @@ class userModel {
       isLogin: false,
       groupState: null,
       addBlackList: false,
+      messageID:null
     });
   }
+
 }
 
 module.exports = {
