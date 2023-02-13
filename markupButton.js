@@ -5,9 +5,11 @@ const { userModel } = require("./models/user");
 const fun = require("./publickFunctions");
 
 class ButtonBot {
-  
-  static async RepleyMarkupGroupAdmin(bot, ctx) {
-    const userGroup = await groupModel.getGroupUser({ userId: ctx.from.id });
+  static async RepleyMarkupGroupAdmin(bot, ctx, type) {
+    const userGroup = await groupModel.getGroupUser({
+      userId: ctx.from.id,
+      type: type,
+    });
 
     const options = userGroup.map((x) => [
       { text: x.title, callback_data: x.id },
@@ -29,7 +31,7 @@ class ButtonBot {
           let r = [];
           let bg = {};
           bg.text = blackList[i].word;
-          bg.callback_data =`${blackList[i].text}-${blackList[i].id}`;
+          bg.callback_data = `${blackList[i].text}-${blackList[i].id}`;
           r.push(bg);
           b.push(r);
           let bo = blackList[i].id;
@@ -38,18 +40,17 @@ class ButtonBot {
             await fun.DeleteButtonMurkUp(ctx.from.id, ctx);
 
             await blackListModel.delete({ id: bo });
-            await userModel.defaultUser({userId:ctx.from.id})
+            await userModel.defaultUser({ userId: ctx.from.id });
 
-            await ctx.reply(`با موفقیت خذف شد`,{
-              
+            await ctx.reply(`با موفقیت خذف شد`, {
               reply_markup: JSON.stringify({
-                inline_keyboard:options
+                inline_keyboard: options,
               }),
             });
           });
         }
 
-        let a =await  ctx.reply(
+        let a = await ctx.reply(
           "کلمات شما به شرح زیر است اگر بر روی هر کدام کلیک کنید به منظور خذف خواهد بود و با تگ زیر میتوانید کلمه جدید را اضافه کنید /addBlackWord",
           {
             reply_markup: JSON.stringify({
@@ -57,9 +58,41 @@ class ButtonBot {
             }),
           }
         );
-        
-        await userModel.changeUser({userId:ctx.from.id},{messageID:a.message_id})
 
+        await userModel.changeUser(
+          { userId: ctx.from.id },
+          { messageID: a.message_id }
+        );
+
+        return a;
+
+        //  messageid = MessageIdForDelete.message_id;
+      });
+    });
+    return options;
+  }
+
+  static async RepleyMarkupUserAdmin(bot, ctx, type) {
+    const users = await userModel.getAllUser({ isActive: type });
+
+    const options = users.map((x) => [
+      { text: `${x.firstName}_${x.lastName}`, callback_data: x.userId },
+    ]);
+    users.forEach((element) => {
+      bot.action(`${element.userId}`, async (ctx) => {
+        await fun.DeleteButtonMurkUp(ctx.from.id, ctx);
+        let isActiveate=true;
+        if(type==true){
+          isActiveate=false;
+        }
+       
+        await userModel.changeUser({userId:element.userId},{isActive:isActiveate})
+        let a = await ctx.reply("با موفقیت وضعیت کاربر تغییر کرد");
+
+        await userModel.changeUser(
+          { userId: ctx.from.id },
+          { messageID: a.message_id }
+        );
 
         return a;
 

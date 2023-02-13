@@ -28,6 +28,8 @@ const command = [
   {
     commandName: "addGroup",
     commandAction: async function (ctx, bot) {
+      console.log("888888888888");
+      console.log(ctx);
       if (ctx.message.chat.type == "private") {
         return ctx.reply(
           "این کامند را باید درگروهی بزنید که بات مدیر ان گروه باشد"
@@ -49,6 +51,7 @@ const command = [
         title: ctx.message.chat.title,
         isActive: false,
         userId: ctx.message.from.id,
+        type:'group'
       });
     return  ctx.reply("با موفقیت گروه اضافه شد");
     },
@@ -68,22 +71,135 @@ const command = [
     commandName: "back",
     commandAction: async function (ctx, bot) {
       await userModel.defaultUser({userId: ctx.message.from.id })
-      console.log("TTTTTTTTTTTTtt");
       console.log(ctx.message.from.id);
       await fun.DeleteButtonMurkUp(ctx.message.from.id, ctx);
+      let a = await ctx.reply("   جهت مدیرت گروه های خود تگ /manageGroup و جهت مدیریت کانال های خود تگ /manageChannel را بزنید" )
+      await userModel.changeUser({userId:ctx.message.from.id},{isLogin:true,messageID:a.message_id})
 
-      let a =  await ctx.reply('گروه مدنظر خود را انتخاب کنید',{
+     
+      return a;
+      // let a =  await ctx.reply('گروه مدنظر خود را انتخاب کنید',{
+      //   reply_markup: JSON.stringify({
+      //     inline_keyboard: await MarkupBtn.ButtonBot.RepleyMarkupGroupAdmin(
+      //       bot,ctx
+      //     ),
+      //   }),
+      // })
+      // await userModel.changeUser({userId:ctx.message.from.id },{messageID:a.message_id})
+
+      // return a;
+    },
+  },
+  {
+    commandName: "manageGroup",
+    commandAction: async function (ctx, bot) {
+      await fun.DeleteButtonMurkUp(ctx.message.from.id, ctx);
+
+      let a = await ctx.reply(" گروه های شما به شرح زیر است"   ,
+    {
         reply_markup: JSON.stringify({
           inline_keyboard: await MarkupBtn.ButtonBot.RepleyMarkupGroupAdmin(
-            bot,ctx
+            bot,ctx,'group'
           ),
         }),
-      })
-      await userModel.changeUser({userId:ctx.message.from.id },{messageID:a.message_id})
+      }
+      )
+      await userModel.changeUser({userId:ctx.message.from.id },{isLogin:true,messageID:a.message_id})
 
+     
       return a;
     },
   },
+  {
+    commandName: "manageChannel",
+    commandAction: async function (ctx, bot) {
+      await fun.DeleteButtonMurkUp(ctx.message.from.id, ctx);
+
+      let a = await ctx.reply(" کانال های شما به شرح زیر است جهت اضافه کردن کانال جدید تگ /addChannel را بزنید"    ,
+    {
+        reply_markup: JSON.stringify({
+          inline_keyboard: await MarkupBtn.ButtonBot.RepleyMarkupGroupAdmin(
+            bot,ctx,'channel'
+          ),
+        }),
+      }
+      )
+      await userModel.changeUser({userId:ctx.message.from.id },{isLogin:true,messageID:a.message_id})
+
+     
+      return a;
+    },
+  },
+  {
+    commandName: "addChannel",
+    commandAction: async function (ctx, bot) {
+      await fun.DeleteButtonMurkUp(ctx.message.from.id, ctx);
+      await userModel.changeUser({userId:ctx.message.from.id },{addChannel:true,groupState:null})
+      let a = await ctx.reply("نام دقیق کانال خود را وارد کنید"    ,
+  
+      )
+      await userModel.changeUser({userId:ctx.message.from.id },{isLogin:true,messageID:a.message_id})
+
+     
+      return a;
+    },
+  },
+
+  {
+    commandName: "admin",
+    commandAction: async function (ctx, bot) {
+      await fun.DeleteButtonMurkUp(ctx.message.from.id, ctx);
+      await userModel.defaultUser({userId:ctx.message.from.id})
+      let a = await ctx.reply("به مدیریت خوش امدید جهت مدیریت افراد فعال تگ /activeUser و جهت مدیریت افراد غیر فعال تگ /unActiveUser را بزنید"    ,
+      )
+      await userModel.changeUser({userId:ctx.message.from.id },{isLogin:true,messageID:a.message_id})
+
+     
+      return a;
+    },
+  },
+  {
+    commandName: "activeUser",
+    commandAction: async function (ctx, bot) {
+      await fun.DeleteButtonMurkUp(ctx.message.from.id, ctx);
+      await userModel.defaultUser({userId:ctx.message.from.id})
+      let a = await ctx.reply("افراد فعال به شرح زیر هستند"  ,
+      {
+        reply_markup: JSON.stringify({
+          inline_keyboard: await MarkupBtn.ButtonBot.RepleyMarkupUserAdmin(
+            bot,ctx,true
+          ),
+        }),
+      }  
+      )
+      await userModel.changeUser({userId:ctx.message.from.id },{isLogin:true,messageID:a.message_id})
+
+     
+      return a;
+    },
+  },
+  {
+    commandName: "unActiveUser",
+    commandAction: async function (ctx, bot) {
+      await fun.DeleteButtonMurkUp(ctx.message.from.id, ctx);
+      await userModel.defaultUser({userId:ctx.message.from.id})
+      let a = await ctx.reply("افراد غیر فعال به شرح زیر هستند"  ,
+      {
+        reply_markup: JSON.stringify({
+          inline_keyboard: await MarkupBtn.ButtonBot.RepleyMarkupUserAdmin(
+            bot,ctx,false
+          ),
+        }),
+      }  
+      )
+      await userModel.changeUser({userId:ctx.message.from.id },{isLogin:true,messageID:a.message_id})
+
+     
+      return a;
+    },
+  },
+
+  
 ];
 
 module.exports = {

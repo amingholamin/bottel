@@ -33,8 +33,12 @@ class userModel {
       isLogin: false,
       groupState: null,
       addBlackList: false,
-      messageID:null
+      messageID:null,
+      addChannel:false
     });
+  }
+  static async getAllUser(data){
+    return await CRUDOperation.GetAll("user",data)
   }
 
 }

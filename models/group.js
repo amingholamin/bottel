@@ -16,6 +16,9 @@ class groupModel {
   static async getGroupUser(data){
     return await CRUDOperation.GetAll("group",data)
   }
+  static async Change(where,data){
+return await CRUDOperation.Update("group",where,data);
+  }
  
 }
 

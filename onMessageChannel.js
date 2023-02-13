@@ -1,66 +1,60 @@
 const { userModel } = require("./models/user");
 const { blackListModel } = require("./models/blackList");
-const { groupModel } = require('./models/group');
-async function onMessageBot(bot, ctx) {
-  console.log("99999999999");
-  console.log(ctx);
-  const user = await userModel.getUser({ userId: ctx.message.from.id });
-  if (user) {
-    console.log("00000000000000");
-    if (user.addBlackList && user.groupState != null) {
-      await blackListModel.createBlackList({
-        groupId: user.groupState,
-        word: ctx.message.text,
-      });
-      return await ctx.reply(
-        "با موفقیت اضافه شد میتوانید کلمه بعدی را وارد کنید و در صورت بازگشت دکمه /back بزنید"
-      );
-    }else if(user.addChannel){
-      console.log("1111111111111111");
-      await userModel.defaultUser({userId:ctx.message.from.id})
-      await groupModel.createGroup({userId:ctx.message.from.id,title:ctx.message.text,type:'channel'})
-      return await ctx.reply(
-       "با موفقیت اضافه شد جهت تکمیل کار به کانال مد نظر رقته و تگ /complate را بزنید و همچنین میتوانید جهت  جهت مدیرت گروه های خود تگ /manageGroup و جهت مدیریت کانال های خود تگ /manageChannel را بزنی"
-      );
+const { groupModel } = require("./models/group");
+async function onMessageChannelBot(bot, ctx) {
+  if (ctx.channelPost.text == "/complate") {
+    console.log(ctx.channelPost);
+    let group = await groupModel.getGroup({
+      title: ctx.channelPost.chat.title,
+      groupId: null,
+    });
+    if (!group) {
+     return ctx.reply("موردی یافت نشد");
     }
-  }  
-  if (ctx.message.chat.type != "private") {
+    await groupModel.Change(
+      { title: ctx.channelPost.chat.title, groupId: null },
+      { groupId: ctx.channelPost.chat.id }
+    );
+    return ctx.reply("با موفقیت فعال شد");
+  } else {
     let blackList = await blackListModel.getWords({
-      groupId: ctx.message.chat.id,
+      groupId: ctx.channelPost.chat.id,
     });
     let words = [];
     for (var i = 0; i < blackList.length; ++i) {
       words.push(blackList[i].word);
     }
     if (words.length) {
-      console.log("44444444444444");
-      if (ctx.message.text) {
+      
+      if (ctx.channelPost.text) {
         for (var i = 0; i < words.length; ++i) {
-          if (ctx.message.text.includes(words[i])) {
+          if (ctx.channelPost.text.includes(words[i])) {
             return ctx.telegram.deleteMessage(
-              ctx.message.chat.id,
-              ctx.message.message_id
+              ctx.channelPost.chat.id,
+              ctx.channelPost.message_id
             );
           }
         }
-      } else if (ctx.message.caption) {
+
+      }
+      
+      else if (ctx.channelPost.caption) {
         for (var i = 0; i < words.length; ++i) {
-          if (ctx.message.caption.includes(words[i])) {
+          if (ctx.channelPost.caption.includes(words[i])) {
             return ctx.telegram.deleteMessage(
-              ctx.message.chat.id,
-              ctx.message.message_id
+              ctx.channelPost.chat.id,
+              ctx.channelPost.message_id
             );
           }
         }
       }
     }
-  }else{
-    console.log("gogoog");
   }
+
 }
 
 module.exports = {
-  onMessageBot,
+  onMessageChannelBot,
 };
 
 // bot.on("message", async (ctx) => {

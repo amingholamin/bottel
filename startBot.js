@@ -10,13 +10,7 @@ async function Start(bot,ctx){
     }
     else if(result=="ok"){
 
-    let a = await ctx.reply("  خوش آمدید گروه های شما به شرح زیر است" ,{
-        reply_markup: JSON.stringify({
-          inline_keyboard: await MarkupBtn.ButtonBot.RepleyMarkupGroupAdmin(
-            bot,ctx
-          ),
-        }),
-      })
+    let a = await ctx.reply("  خوش آمدید جهت مدیرت گروه های خود تگ /manageGroup و جهت مدیریت کانال های خود تگ /manageChannel را بزنید" )
       await userModel.changeUser({userId},{isLogin:true,messageID:a.message_id})
 
      
