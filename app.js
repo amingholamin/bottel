@@ -6,23 +6,13 @@ const actionBot = require("./actionBot");
 const onMessageBot = require('./onMessage');
 const onMessageChannelBot = require('./onMessageChannel');
 
+require("dotenv").config();
 
-let words = ['hi'];
-let admin = {
-  password: "1234",
-  forAdmin: false,
-  adminlogin: false,
-  addworld: false,
-  time: Date.now,
-  addWorld: false,
-};
-
-const bot = new Telegraf("5937880269:AAEQFf9vffnsdB4fGep1LHijwbYgtCN2iVA", {
+const bot = new Telegraf(process.env.KEY, {
   telegram: {
-    apiRoot: "https://tp.jadeh.co/",
+    apiRoot: process.env.API_ROOT,
   }
 });
-
 commandBot.command.forEach((e) => {
   bot.command(e.commandName, async (ctx) => {
     await e.commandAction(ctx, bot);

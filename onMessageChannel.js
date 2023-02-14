@@ -3,7 +3,6 @@ const { blackListModel } = require("./models/blackList");
 const { groupModel } = require("./models/group");
 async function onMessageChannelBot(bot, ctx) {
   if (ctx.channelPost.text == "/complate") {
-    console.log(ctx.channelPost);
     let group = await groupModel.getGroup({
       title: ctx.channelPost.chat.title,
       groupId: null,

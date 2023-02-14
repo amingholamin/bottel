@@ -2,11 +2,8 @@ const { userModel } = require("./models/user");
 const { blackListModel } = require("./models/blackList");
 const { groupModel } = require('./models/group');
 async function onMessageBot(bot, ctx) {
-  console.log("99999999999");
-  console.log(ctx);
   const user = await userModel.getUser({ userId: ctx.message.from.id });
   if (user) {
-    console.log("00000000000000");
     if (user.addBlackList && user.groupState != null) {
       await blackListModel.createBlackList({
         groupId: user.groupState,
@@ -16,7 +13,6 @@ async function onMessageBot(bot, ctx) {
         "با موفقیت اضافه شد میتوانید کلمه بعدی را وارد کنید و در صورت بازگشت دکمه /back بزنید"
       );
     }else if(user.addChannel){
-      console.log("1111111111111111");
       await userModel.defaultUser({userId:ctx.message.from.id})
       await groupModel.createGroup({userId:ctx.message.from.id,title:ctx.message.text,type:'channel'})
       return await ctx.reply(
@@ -33,7 +29,6 @@ async function onMessageBot(bot, ctx) {
       words.push(blackList[i].word);
     }
     if (words.length) {
-      console.log("44444444444444");
       if (ctx.message.text) {
         for (var i = 0; i < words.length; ++i) {
           if (ctx.message.text.includes(words[i])) {
@@ -55,7 +50,6 @@ async function onMessageBot(bot, ctx) {
       }
     }
   }else{
-    console.log("gogoog");
   }
 }
 

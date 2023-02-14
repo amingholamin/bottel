@@ -36,7 +36,6 @@ class ButtonBot {
           b.push(r);
           let bo = blackList[i].id;
           bot.action(`${blackList[i].text}-${blackList[i].id}`, async (ctx) => {
-            console.log(ctx.from.id);
             await fun.DeleteButtonMurkUp(ctx.from.id, ctx);
 
             await blackListModel.delete({ id: bo });
@@ -74,19 +73,30 @@ class ButtonBot {
 
   static async RepleyMarkupUserAdmin(bot, ctx, type) {
     const users = await userModel.getAllUser({ isActive: type });
-
+    console.log("999999");
+    console.log(type);
     const options = users.map((x) => [
       { text: `${x.firstName}_${x.lastName}`, callback_data: x.userId },
     ]);
     users.forEach((element) => {
       bot.action(`${element.userId}`, async (ctx) => {
         await fun.DeleteButtonMurkUp(ctx.from.id, ctx);
-        let isActiveate=true;
-        if(type==true){
-          isActiveate=false;
+        let isActiveate;
+        let userState = element.isActive;
+        console.log("0000000000");
+        console.log(element.userId);
+        console.log(userState);
+        if (userState == true) {
+          isActiveate = false;
+        } else {
+          isActiveate = true;
         }
-       
-        await userModel.changeUser({userId:element.userId},{isActive:isActiveate})
+        console.log("1111111111");
+        console.log(isActiveate);
+        await userModel.changeUser(
+          { userId: element.userId },
+          { isActive: isActiveate }
+        );
         let a = await ctx.reply("با موفقیت وضعیت کاربر تغییر کرد");
 
         await userModel.changeUser(

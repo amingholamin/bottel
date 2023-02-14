@@ -28,8 +28,6 @@ const command = [
   {
     commandName: "addGroup",
     commandAction: async function (ctx, bot) {
-      console.log("888888888888");
-      console.log(ctx);
       if (ctx.message.chat.type == "private") {
         return ctx.reply(
           "این کامند را باید درگروهی بزنید که بات مدیر ان گروه باشد"
@@ -49,7 +47,6 @@ const command = [
       await groupModel.createGroup({
         groupId: ctx.message.chat.id,
         title: ctx.message.chat.title,
-        isActive: false,
         userId: ctx.message.from.id,
         type:'group'
       });
@@ -71,7 +68,6 @@ const command = [
     commandName: "back",
     commandAction: async function (ctx, bot) {
       await userModel.defaultUser({userId: ctx.message.from.id })
-      console.log(ctx.message.from.id);
       await fun.DeleteButtonMurkUp(ctx.message.from.id, ctx);
       let a = await ctx.reply("   جهت مدیرت گروه های خود تگ /manageGroup و جهت مدیریت کانال های خود تگ /manageChannel را بزنید" )
       await userModel.changeUser({userId:ctx.message.from.id},{isLogin:true,messageID:a.message_id})
